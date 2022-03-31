@@ -1,3 +1,4 @@
+from enum import unique
 from FlaskServer import db, login_manager
 from datetime import datetime
 from flask import current_app
@@ -57,3 +58,9 @@ class Post(db.Model):
     def __repr__(self):
         return f"User('{self.title}', '{self.date_posted}')"
 #User与Post之间有1:n的关系
+
+class Bot(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(), unique=True, nullable=False)
+    model_id = db.Column(db.String(500), unique=True, nullable=False)
+    token_read = db.Column(db.String(500), unique=True, nullable=False)

@@ -47,7 +47,7 @@
                             {% endif %}
                         </div>
                         <div class="from-group">
-                            {{form.email.label()}}
+                            {{form.picture.label(class="from-control-label")}}
                             {{ form.picture(class="form-control-file") }}
                             {% if form.picture.errors %}
                                 {% for error in form.picture.errors %}

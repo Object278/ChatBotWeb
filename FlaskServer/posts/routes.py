@@ -3,6 +3,7 @@ from flask_login import current_user, login_required
 from FlaskServer import db
 from FlaskServer.model import Post
 from FlaskServer.posts.forms import PostForm
+from FlaskServer.chatbot.chat import Bot
 
 posts = Blueprint('posts', __name__)
 
@@ -11,7 +12,7 @@ posts = Blueprint('posts', __name__)
 def new_post():
     form = PostForm()
     if form.validate_on_submit():
-        post = Post(title=form.title.data, content=form.content.data, author=current_user)
+        post = Post(title=form.title.data, content='You: ' + form.content.data, author=current_user)
         db.session.add(post)
         db.session.commit()
         flash('Your post has been created.', 'success')
@@ -35,17 +36,25 @@ def update_post(post_id):
     form = PostForm()
     if form.validate_on_submit():
         #update Post内容，不添加新内容就不用使用add方法
-        post.title = form.title.data
-        post.content = form.content.data
-        db.session.commit()
-        flash('Your post has been updated!', 'success')
-        return redirect(url_for('posts.post', post_id=post.id))
+        bot = Bot(0)
+        bot.wakeup()
+        bot_response = bot.send_message(form.content.data)
+        if bot_response == 'BotError':
+            flash('NOTICE: There might be an error on the bot. Please contact the administator: zli18876@gmail.com', 'danger')
+        elif bot_response == 'OtherError':
+            flash('NOTICE: Please wait a minute and try again. If you still get a NOTICE, Please contact the administator: zli18876@gmail.com', 'info')
+        else:
+            post.title = form.title.data
+            post.content = form.append_content(post.content, form.content.data, bot_response)
+            db.session.commit()
+            #flash('Your post has been updated!', 'success')
+            return redirect(url_for('posts.post', post_id=post.id))
     elif request.method == 'GET':
         #用户先GET请求到update这个页面，之后填完表之后POST上交，第一次GET
         #的时候把当前的内容显示进去
         #显示当前的Post内容，和修改用户信息那里一样
         form.title.data = post.title
-        form.content.data = post.content
+        #form.content.data = post.content
     return render_template('create_post.html', title='Update Post', form=form, legend='Update Post')
 
 #按下delete确定按钮之后，向这个方法发送POST方法，包含post_id

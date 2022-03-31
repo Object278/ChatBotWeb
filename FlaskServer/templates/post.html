@@ -8,14 +8,22 @@
         <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
         {% if post.author == current_user %}
           <div>
-            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('posts.update_post', post_id=post.id) }}">Update</a>
+            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('posts.update_post', post_id=post.id) }}">Send Message</a>
             <!--注意，delete点击后无法弹出Modal-->
-            <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete</button>
+            <button type="button" class="btn btn-danger btn-sm m-1" data-toggle="modal" data-target="#deleteModal">Delete history</button>
           </div>
         {% endif %}
       </div>
       <h2 class="article-title">{{ post.title }}</h2>
-      <p class="article-content">{{ post.content }}</p>
+      {% for line in post.content.split('\n') %}
+        {% if line.startswith('You') %}
+          <img class="rounded-circle article-img" src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}">
+        {% else %}
+          <img class="rounded-circle article-img" src="{{ url_for('static', filename='bot_icon/' + 'HarryPotter.png') }}">
+        {% endif %}
+        <p class="article-content">{{ line }}</p>
+      {% endfor %}
+      <!--<p class="article-content">{{ post.content }}</p>-->
     </div>
   </article>
   <!-- Modal -->
